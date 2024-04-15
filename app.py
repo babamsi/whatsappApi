@@ -21,7 +21,7 @@ mytoken = os.getenv("TOKEN")
 app = Flask(__name__)
 
 
-client = MongoClient('mongodb+srv://bamsi:Alcuduur40@cluster0.vtlehsn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
+client = MongoClient(os.getenv("MONGODB_URL"))
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
