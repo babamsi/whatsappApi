@@ -1,0 +1,8 @@
+./sample.py
+./__pycache__
+.env
+./db.py
+./sendImage.py
+./sim.mp4
+./ss.mp3
+./test.py
