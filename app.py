@@ -34,23 +34,16 @@ messenger = WhatsApp(token=mytoken,  phone_number_id='256226997571281');
 def test():
     
     db = client["probot0"]
-    contacts = db['contacts']
-    # contact_dict = {
-    #      "name": "Veera Pedapati",
-    #      "mobile": "918121285872",
-    #      "avatar": "https://media.istockphoto.com/id/1337144146/vector/default-avatar-profile-icon-vector.jpg?s=612x612&w=0&k=20&c=BIbFwuv7FxTWvh5S3vB6bkT0Qv8Vn8N5Ffseq84ClGI="
-    # }
+    broadcasts = db['broadcasts']
+    broadcast_dict = {
+         "name": "Test Broadcast",
+         "mobiles": [{"name": "bamsii", "mobile":"917710285988"}, {"name":"rajesh", "mobile":"916363617779"}],
+         "avatar": "https://media.istockphoto.com/id/1337144146/vector/default-avatar-profile-icon-vector.jpg?s=612x612&w=0&k=20&c=BIbFwuv7FxTWvh5S3vB6bkT0Qv8Vn8N5Ffseq84ClGI="
+    }
 
     # contacts.insert_one(contact_dict)
-    users = contacts.find()
-    users_list = []
-    for item in users:
-        users_dict = {
-            "name": item["name"],
-            "mobile": item["mobile"],
-            "avatar": item["avatar"]
-        }
-    users_list.append(users_dict)
+    broadcasts.insert_one(broadcast_dict)
+    
     # print(users_list)
 
 
@@ -108,6 +101,65 @@ def deleteContact():
         contacts.delete_many({'name': i})
 
      return "deleted"
+
+@app.route('/getBroadcasts')
+def getBroadcasts():
+    db = client["probot0"]
+    bd = db['broadcasts']
+    
+    users = bd.find()
+    users_list = []
+    for item in users:
+        users_dict = {
+            "name": item["name"],
+            "mobiles": item["mobiles"],
+            "avatar": item["avatar"]
+        }
+        users_list.append(users_dict)
+    # print(users_list)
+    return jsonify(users_list)
+
+@app.route("/createBroadcast", methods=["POST"])
+@cross_origin()
+def createBroadcast():
+     incoming_msg = request.get_json();
+     db = client["probot0"]
+     broadcasts = db['broadcasts']
+
+     users = broadcasts.find();
+     name = incoming_msg["name"]
+    #  number = incoming_msg["mobiles"]
+     for i in users:
+          if i["name"] == name:
+               return "this broadcase name already been there"
+    
+     
+     broadcast_dict = {
+        "name": incoming_msg['name'],
+        "mobiles": [],
+        "avatar": "https://media.istockphoto.com/id/1337144146/vector/default-avatar-profile-icon-vector.jpg?s=612x612&w=0&k=20&c=BIbFwuv7FxTWvh5S3vB6bkT0Qv8Vn8N5Ffseq84ClGI="
+    }
+     for i in incoming_msg["mobiles"]:
+          broadcast_dict["mobiles"].append({"name": i["name"], "mobile":i["mobile"]})
+
+    #  print(broadcast_dict)
+     broadcasts.insert_one(broadcast_dict)
+    #  print(broadcast_dict)
+     return "saved"
+
+
+@app.route('/deleteBroadcast', methods=["POST"])
+@cross_origin()
+def deleteBroadcast():
+     incoming_msg = request.get_json();
+    #  print(incoming_msg)
+     db = client["probot0"]
+     bc = db['broadcasts']
+     for i in incoming_msg["body"]:
+        bc.delete_many({'name': i})
+
+     return "deleted"
+
 
 @app.route('/send', methods=["POST"])
 @cross_origin()
@@ -192,11 +244,11 @@ def file():
 def getTemplates():
     url = " https://graph.facebook.com/v19.0/256551524204351/message_templates"
     headers = {
-        'Authorization': f'Bearer EAAFaFIJHIucBOZCcRvGMbnYZAEpC2vAB4qUZClHTBhHHrniKTZAgUWjChs3F1NN1NM3VWSoE0bimT8IqB3ZCSSC4nzuOGjEMm6mzvIGB5MZALl2yi9IHxBxYXbAZCAbq8unQmgyJZAby8vBhDmq3DaPTht9FtbMZBC3TX9TorHcXWfnIvziatKoAdcdqmkFqGzwfF8Q2XF297Jfyj5ZAfaZB0oZD',
+        'Authorization': f'Bearer EAAFaFIJHIucBO5CMGJJJiiy8aiWxvpYJKjmn680AS4SNWf73YsUjOD6t26Tdg4GjCbE9h7E3jv2vWTSSVowdoPrhaG1mdl5hQcIbXDTDZBarevQSRYakN4ZCnyJRisQfVpNdytAZBrzg0mEBYdhaElySf51lHARiz1fAE0PcCyOytiOVsQNOgllhjOYjdo6dLTyTAuT2e7JZCkvodRIIuf4ZCCKrfGHbug3akNxAZD',
         'Content-Type': 'application/json'
     }
     response = requests.get(url, headers=headers)
-    # print(response.text)
+    print(response.text)
     return response.text
 
 @app.route('/sendTemplate', methods=["POST"])
@@ -206,7 +258,7 @@ def sendTemplate():
 
      url = 'https://graph.facebook.com/v18.0/256226997571281/messages'
      headers = {
-        'Authorization': f'Bearer EAAFaFIJHIucBOyPNrGuUwVQTI3CtlSHMzAI2of1HMG8ueenb04z1J3fBpb9rHQ2arruvsnOyLyCklhZBIBnkWFvddGD27MOZB5d7zQOpbevHFmaSUbi2IpzdUyStPaycJtKev0sHRtwSCXp3sc5klnWHBjEoWrFxPuNG9eYfFOcFd2tMjR0gsxJCKZByDbe7ZCTMlSaZAgOX3Lydb6DcZD',
+        'Authorization': f'Bearer EAAFaFIJHIucBO5CMGJJJiiy8aiWxvpYJKjmn680AS4SNWf73YsUjOD6t26Tdg4GjCbE9h7E3jv2vWTSSVowdoPrhaG1mdl5hQcIbXDTDZBarevQSRYakN4ZCnyJRisQfVpNdytAZBrzg0mEBYdhaElySf51lHARiz1fAE0PcCyOytiOVsQNOgllhjOYjdo6dLTyTAuT2e7JZCkvodRIIuf4ZCCKrfGHbug3akNxAZD',
         'Content-Type': 'application/json'
     }
     #  print(incoming_msg["body"])
@@ -238,6 +290,7 @@ def sendTemplate():
 @cross_origin()
 def sendLocation():
     incoming_msg = request.get_json();
+    print(incoming_msg)
     url = 'https://graph.facebook.com/v18.0/256226997571281/messages'
     headers = {
         'Authorization': f'Bearer {mytoken}',
